@@ -1,112 +1,51 @@
 //
-//  ScanTableViewController.swift
+//  BluetoothManager.swift
 //  iBeacon-Demo
 //
-//  Created by Kent Winder on 8/13/19.
+//  Created by Kent Winder on 8/14/19.
 //  Copyright © 2019 Kent Winder. All rights reserved.
 //
 
-import UIKit
 import CoreBluetooth
 
-class ScanTableViewController: UITableViewController {
+protocol BluetoothManagerDelegate: class {
+    func bluetoothManager(_ bluetoothManager: BluetoothManager, log text: String)
+    func bluetoothManagerDidUpdatePeripheral(_ bluetoothManager: BluetoothManager)
+}
+
+class BluetoothManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
+    static var shared = BluetoothManager()
     
-    @IBOutlet weak var autoScrollBarButtonItem: UIBarButtonItem!
-    
-    var centralManager: CBCentralManager!
+    private var centralManager: CBCentralManager!
     var peripherals: [CBPeripheral] = []
-    var logs: [String] = []
     var selectedPeripheral: CBPeripheral!
     var subscribedCharacteristic: CBCharacteristic? = nil
-    var autoScroll = true
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        centralManager = CBCentralManager(delegate: self, queue: nil)
+    weak var delegate: BluetoothManagerDelegate?
+    
+    required override init() {
+        super.init()
+        centralManager = CBCentralManager.init(delegate: self, queue: nil)
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if let _ = selectedPeripheral {
-            if let _ = subscribedCharacteristic {
-                selectedPeripheral!.setNotifyValue(true, for: subscribedCharacteristic!)
-            }
-            
-            centralManager.cancelPeripheralConnection(selectedPeripheral)
-        }
-    }
-    
-    @IBAction func toggleAutoScroll(_ sender: Any) {
-        autoScroll = !autoScroll
-        if autoScroll {
-            autoScrollBarButtonItem.title = "Auto Scroll ON"
-        } else {
-            autoScrollBarButtonItem.title = "Auto Scroll OFF"
-        }
-    }
-    
-    // MARK: - Table view data source
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let _ = selectedPeripheral {
-            return logs.count
-        } else {
-            return peripherals.count
-        }
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ScanTableViewCell", for: indexPath)
-        if let _ = selectedPeripheral {
-            cell.textLabel?.text = logs[indexPath.row]
-        } else {
-            let peripheral = peripherals[indexPath.row]
-            cell.textLabel?.text = peripheral.name
-        }
-        return cell
-    }
-    
-    // MARK: - Table view delegate
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        selectedPeripheral = peripherals[indexPath.row]
+    func connectToPeripheral(at index: Int) {
+        selectedPeripheral = peripherals[index]
         selectedPeripheral.delegate = self
         centralManager.stopScan()
         centralManager.connect(selectedPeripheral, options: nil)
-        tableView.allowsSelection = false
-        tableView.reloadData()
     }
     
-    func log(_ text: String) {
-        logs.append(text)
-        reloadTableView()
-    }
-    
-    func reloadTableView() {
-        tableView.reloadData()
-        
-        if autoScroll {
-            var row: Int = 0
-            if let _ = selectedPeripheral {
-                row = logs.count - 1
-            } else {
-                row = peripherals.count - 1
+    func disconnect() {
+        if let _ = selectedPeripheral {
+            if let _ = subscribedCharacteristic {
+                selectedPeripheral!.setNotifyValue(false, for: subscribedCharacteristic!)
             }
-            if row > 0 {
-                let indexPath = IndexPath(row: row, section: 0)
-                DispatchQueue.main.async {
-                    self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
-                }
-            }
+            
+            centralManager.cancelPeripheralConnection(selectedPeripheral)
+            selectedPeripheral = nil
         }
     }
-}
-
-extension ScanTableViewController: CBCentralManagerDelegate {
+    
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .unknown:
@@ -132,7 +71,7 @@ extension ScanTableViewController: CBCentralManagerDelegate {
         debugPrint("Retrieve \(_peripherals.count) known peripherals")
         if _peripherals.count > 0 {
             peripherals.append(contentsOf: _peripherals)
-            reloadTableView()
+            delegate?.bluetoothManagerDidUpdatePeripheral(self)
         }
         
         retrieveConnectedPeripherals()
@@ -143,7 +82,7 @@ extension ScanTableViewController: CBCentralManagerDelegate {
         debugPrint("Retrieve \(_peripherals.count) connected peripherals")
         if _peripherals.count > 0 {
             peripherals.append(contentsOf: _peripherals)
-            reloadTableView()
+            delegate?.bluetoothManagerDidUpdatePeripheral(self)
         }
         
         debugPrint("Scan for peripherals")
@@ -153,29 +92,27 @@ extension ScanTableViewController: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
         if let name = peripheral.name, name != "" {
             peripherals.append(peripheral)
-            reloadTableView()
+            delegate?.bluetoothManagerDidUpdatePeripheral(self)
         }
     }
-}
-
-extension ScanTableViewController: CBPeripheralDelegate {
+    
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        log("Connected")
-        log("Start discovering services")
+        delegate?.bluetoothManager(self, log: "Connected")
+        delegate?.bluetoothManager(self, log: "Start discovering services")
         peripheral.discoverServices([BeaconTableViewController.serviceUUID])
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let error = error {
-            log("Did discover services with error: \(error.localizedDescription)")
+            delegate?.bluetoothManager(self, log: "Did discover services with error: \(error.localizedDescription)")
             return
         }
         
-        log("Discovered \(peripheral.services?.count ?? 0) service(s)")
+        delegate?.bluetoothManager(self, log: "Discovered \(peripheral.services?.count ?? 0) service(s)")
         if let services = peripheral.services {
             for service in services {
                 if service.uuid.isEqual(BeaconTableViewController.serviceUUID) {
-                    log("Start discovering characteristics")
+                    delegate?.bluetoothManager(self, log: "Start discovering characteristics")
                     peripheral.discoverCharacteristics([BeaconTableViewController.characteristicUUID], for: service)
                 }
             }
@@ -184,18 +121,18 @@ extension ScanTableViewController: CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if let error = error {
-            log("Did discover characteristics with error: \(error.localizedDescription)")
+            delegate?.bluetoothManager(self, log: "Did discover characteristics with error: \(error.localizedDescription)")
             return
         }
         
-        log("Discovered \(service.characteristics?.count ?? 0) characteristic(s)")
+        delegate?.bluetoothManager(self, log: "Discovered \(service.characteristics?.count ?? 0) characteristic(s)")
         if let characteristics = service.characteristics {
             for characteristic in characteristics {
                 if characteristic.uuid.isEqual(BeaconTableViewController.characteristicUUID) {
                     subscribedCharacteristic = characteristic
                     
                     if characteristic.properties.contains(.notify) {
-                        log("Start receiving notifications for changes of characteristic’s value")
+                        delegate?.bluetoothManager(self, log: "Start receiving notifications for changes of characteristic’s value")
                         peripheral.setNotifyValue(true, for: characteristic)
                     }
                     
@@ -206,23 +143,23 @@ extension ScanTableViewController: CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let error = error {
-            log("Did update value with error: \(error.localizedDescription)")
+            delegate?.bluetoothManager(self, log: "Did update value with error: \(error.localizedDescription)")
             return
         }
         
         if let data = characteristic.value, let valueInString = String(data: data, encoding: String.Encoding.utf8) {
-            log("Value updated to: \(valueInString)")
+            delegate?.bluetoothManager(self, log: "Value updated to: \(valueInString)")
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
         if let error = error {
-            log("Did update notification state with error: \(error.localizedDescription)")
+            delegate?.bluetoothManager(self, log: "Did update notification state with error: \(error.localizedDescription)")
             return
         }
         
         if let data = characteristic.value, let valueInString = String(data: data, encoding: String.Encoding.utf8) {
-            log("Value updated to: \(valueInString)")
+            delegate?.bluetoothManager(self, log: "Value updated to: \(valueInString)")
         }
     }
 }

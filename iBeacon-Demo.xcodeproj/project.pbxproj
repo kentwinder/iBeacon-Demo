@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B165A422303F49B00713184 /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B165A412303F49B00713184 /* BluetoothManager.swift */; };
 		3B1EFFE6230293B2006601A2 /* ScanTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1EFFE5230293B2006601A2 /* ScanTableViewController.swift */; };
 		3B1EFFEA230299A8006601A2 /* CentralData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1EFFE9230299A8006601A2 /* CentralData.swift */; };
 		3B3243F323027A5A00F29B49 /* BeaconTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B3243F223027A5A00F29B49 /* BeaconTableViewController.swift */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3B165A412303F49B00713184 /* BluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
 		3B1EFFE5230293B2006601A2 /* ScanTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTableViewController.swift; sourceTree = "<group>"; };
 		3B1EFFE9230299A8006601A2 /* CentralData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralData.swift; sourceTree = "<group>"; };
 		3B3243F223027A5A00F29B49 /* BeaconTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeaconTableViewController.swift; sourceTree = "<group>"; };
@@ -80,48 +82,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3B3243F423027ABA00F29B49 /* ViewControllers */ = {
-			isa = PBXGroup;
-			children = (
-				3B3243F223027A5A00F29B49 /* BeaconTableViewController.swift */,
-				3B4FF14E23025F1C00AE6919 /* HomeViewController.swift */,
-				3B1EFFE5230293B2006601A2 /* ScanTableViewController.swift */,
-			);
-			path = ViewControllers;
-			sourceTree = "<group>";
-		};
-		3B3243F523027AC200F29B49 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				3B4FF15523025F1D00AE6919 /* LaunchScreen.storyboard */,
-				3B4FF15023025F1C00AE6919 /* Main.storyboard */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		3B3243F623027AC700F29B49 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		3B3243F723027ACF00F29B49 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		3B3243F823027AEC00F29B49 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				3B4FF15823025F1D00AE6919 /* Info.plist */,
-				3B4FF15323025F1D00AE6919 /* Assets.xcassets */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		3B4FF14023025F1C00AE6919 = {
 			isa = PBXGroup;
 			children = (
@@ -146,12 +106,15 @@
 			isa = PBXGroup;
 			children = (
 				3B4FF14C23025F1C00AE6919 /* AppDelegate.swift */,
-				3B3243F823027AEC00F29B49 /* Resources */,
-				3B3243F723027ACF00F29B49 /* ViewModels */,
-				3B3243F623027AC700F29B49 /* Models */,
-				3B3243F523027AC200F29B49 /* Views */,
-				3B3243F423027ABA00F29B49 /* ViewControllers */,
+				3B4FF15323025F1D00AE6919 /* Assets.xcassets */,
+				3B3243F223027A5A00F29B49 /* BeaconTableViewController.swift */,
+				3B165A412303F49B00713184 /* BluetoothManager.swift */,
 				3B1EFFE9230299A8006601A2 /* CentralData.swift */,
+				3B4FF14E23025F1C00AE6919 /* HomeViewController.swift */,
+				3B4FF15823025F1D00AE6919 /* Info.plist */,
+				3B4FF15523025F1D00AE6919 /* LaunchScreen.storyboard */,
+				3B4FF15023025F1C00AE6919 /* Main.storyboard */,
+				3B1EFFE5230293B2006601A2 /* ScanTableViewController.swift */,
 			);
 			path = "iBeacon-Demo";
 			sourceTree = "<group>";
@@ -314,6 +277,7 @@
 				3B4FF14F23025F1C00AE6919 /* HomeViewController.swift in Sources */,
 				3B1EFFEA230299A8006601A2 /* CentralData.swift in Sources */,
 				3B4FF14D23025F1C00AE6919 /* AppDelegate.swift in Sources */,
+				3B165A422303F49B00713184 /* BluetoothManager.swift in Sources */,
 				3B3243F323027A5A00F29B49 /* BeaconTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -492,7 +456,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y2T9SD53N7;
-				INFOPLIST_FILE = "$(SRCROOT)/iBeacon-Demo/Resources/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/iBeacon-Demo/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -512,7 +477,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y2T9SD53N7;
-				INFOPLIST_FILE = "$(SRCROOT)/iBeacon-Demo/Resources/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/iBeacon-Demo/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

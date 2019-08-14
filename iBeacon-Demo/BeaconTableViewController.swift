@@ -26,14 +26,17 @@ class BeaconTableViewController: UITableViewController {
     var data: [String] = []
     var subscribers: [CBCentral] = []
     var autoScroll = true
+    var broadcastBlock: DispatchWorkItem?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        initLocalBeacon()
+        setupLocalBeacon()
+        setupBroadcastBlock()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        stopBroadcasting()
         stopLocalBeacon()
     }
     
@@ -75,7 +78,7 @@ class BeaconTableViewController: UITableViewController {
 }
 
 extension BeaconTableViewController: CBPeripheralManagerDelegate {
-    func initLocalBeacon() {
+    func setupLocalBeacon() {
         log("Init local beacon")
         if localBeacon != nil {
             stopLocalBeacon()
@@ -141,20 +144,27 @@ extension BeaconTableViewController: CBPeripheralManagerDelegate {
         broadcast()
     }
     
-    func broadcast() {
-        // let textToBroadcast = "\(Date().timeIntervalSince1970)"
-        let number = Int.random(in: 0...1000000)
-        let textToBroadcast = "\(number)"
-        log("Broadcast value: \(textToBroadcast)")
-        delay(2) {
+    func setupBroadcastBlock() {
+        broadcastBlock = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            
+            let number = Int.random(in: 0...1000000)
+            let textToBroadcast = "\(number)"
+            self.log("Broadcast value: \(textToBroadcast)")
             self.peripheralManager.updateValue(Data(textToBroadcast.utf8), for: self.mutableCharacteristic, onSubscribedCentrals: self.subscribers)
             self.broadcast()
         }
     }
     
-    func delay(_ delay: Double, closure: @escaping () -> ()) {
+    func broadcast() {
+        let delay: Double = 2
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC),
-                                      execute: closure)
+                                      execute: broadcastBlock!)
+    }
+    
+    func stopBroadcasting() {
+        broadcastBlock?.cancel()
+        broadcastBlock = nil
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {

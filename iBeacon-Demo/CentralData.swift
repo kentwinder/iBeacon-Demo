@@ -11,5 +11,5 @@ import UIKit
 class CentralData: NSObject {
     static var shared = CentralData()
     
-    var test = ""
+    var logs: [String] = []
 }
