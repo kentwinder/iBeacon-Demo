@@ -4,7 +4,6 @@
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -18,31 +17,59 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gSe-QU-5S1">
+                                <rect key="frame" x="12" y="108" width="390" height="122"/>
+                                <string key="text">When using iPhone as beacon, there are two modes
+- Active: beacon will keep broadcasting new value to subscribed devices
+- Passive: beacon will return a new value when there is read request from other device</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DnE-W1-Y6K">
+                                <rect key="frame" x="12" y="300" width="390" height="162.5"/>
+                                <string key="text">When scanning for devices, there are two modes using when connecting
+- Subscribe: this device will subscribe to beacon, then notify every time value is updated inside beacon
+- Read request: this device will connect to beacon and keep sending read request to get value inside beacon</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3v1-uH-gEJ">
-                                <rect key="frame" x="146" y="433" width="122" height="30"/>
+                                <rect key="frame" x="146" y="250" width="122" height="30"/>
                                 <state key="normal" title="iPhone as Beacon"/>
                                 <connections>
-                                    <segue destination="y3g-5a-ZTq" kind="show" id="tRb-yQ-h93"/>
+                                    <action selector="iPhoneAsBeacon:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eVk-Gc-pJR"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eGa-Cb-IE3">
-                                <rect key="frame" x="189.5" y="487" width="35" height="30"/>
+                                <rect key="frame" x="189.5" y="482.5" width="35" height="30"/>
                                 <state key="normal" title="Scan"/>
                                 <connections>
-                                    <segue destination="zU9-gt-BEo" kind="show" id="HEH-hc-ePS"/>
+                                    <action selector="scanForBeacon:" destination="BYZ-38-t0r" eventType="touchUpInside" id="E9B-aB-tul"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="centerY" secondItem="3v1-uH-gEJ" secondAttribute="bottom" constant="12" id="0jW-Kn-lh0"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="centerY" secondItem="eGa-Cb-IE3" secondAttribute="top" constant="-12" id="RTS-WS-lSC"/>
-                            <constraint firstItem="3v1-uH-gEJ" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="XRq-SB-Ss3"/>
-                            <constraint firstItem="eGa-Cb-IE3" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="cvM-CZ-9TB"/>
+                            <constraint firstItem="eGa-Cb-IE3" firstAttribute="top" secondItem="DnE-W1-Y6K" secondAttribute="bottom" constant="20" id="2Uu-X6-5O5"/>
+                            <constraint firstItem="DnE-W1-Y6K" firstAttribute="top" secondItem="3v1-uH-gEJ" secondAttribute="bottom" constant="20" id="EoQ-uS-UMW"/>
+                            <constraint firstItem="eGa-Cb-IE3" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="M8h-T4-A8E"/>
+                            <constraint firstItem="3v1-uH-gEJ" firstAttribute="top" secondItem="gSe-QU-5S1" secondAttribute="bottom" constant="20" id="XYC-YP-R4p"/>
+                            <constraint firstItem="3v1-uH-gEJ" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="byJ-5P-jyq"/>
+                            <constraint firstItem="gSe-QU-5S1" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="dkK-9J-RfB"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="DnE-W1-Y6K" secondAttribute="trailing" constant="12" id="gzj-8P-HCZ"/>
+                            <constraint firstItem="gSe-QU-5S1" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="12" id="jfH-Kb-3kb"/>
+                            <constraint firstItem="DnE-W1-Y6K" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="12" id="ljj-eL-mnZ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gSe-QU-5S1" secondAttribute="trailing" constant="12" id="pLr-UP-iKi"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" title="Home" id="DgO-pw-eoH"/>
+                    <connections>
+                        <segue destination="y3g-5a-ZTq" kind="show" identifier="HomeToBeacon" id="A0A-DJ-Xo2"/>
+                        <segue destination="zU9-gt-BEo" kind="show" identifier="HomeToScan" id="5t4-gx-BgM"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

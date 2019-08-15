@@ -23,15 +23,19 @@ class BeaconTableViewController: UITableViewController {
     var mutableService: CBMutableService!
     var mutableCharacteristic: CBMutableCharacteristic!
     
+    var beaconMode: BeaconMode!
     var data: [String] = []
     var subscribers: [CBCentral] = []
     var autoScroll = true
     var broadcastBlock: DispatchWorkItem?
+    var currentValue: Int = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLocalBeacon()
-        setupBroadcastBlock()
+        if beaconMode == .active {
+            setupBroadcastBlock()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -141,15 +145,19 @@ extension BeaconTableViewController: CBPeripheralManagerDelegate {
             return
         }
         log("Start advertising succeeded")
-        broadcast()
+        if beaconMode == .active {
+            broadcast()
+        } else {
+            log("Waiting for read request...")
+        }
     }
     
     func setupBroadcastBlock() {
         broadcastBlock = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
             
-            let number = Int.random(in: 0...1000000)
-            let textToBroadcast = "\(number)"
+            self.currentValue = Int.random(in: 0...1000000)
+            let textToBroadcast = "\(self.currentValue)"
             self.log("Broadcast value: \(textToBroadcast)")
             self.peripheralManager.updateValue(Data(textToBroadcast.utf8), for: self.mutableCharacteristic, onSubscribedCentrals: self.subscribers)
             self.broadcast()
@@ -157,7 +165,7 @@ extension BeaconTableViewController: CBPeripheralManagerDelegate {
     }
     
     func broadcast() {
-        let delay: Double = 2
+        let delay: Double = 3
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC),
                                       execute: broadcastBlock!)
     }
@@ -179,5 +187,11 @@ extension BeaconTableViewController: CBPeripheralManagerDelegate {
                 subscribers.remove(at: index)
             }
         }
+    }
+    
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+        log("Received read request from \(request.characteristic.uuid). Response with value: \(currentValue)")
+        request.value = Data("\(currentValue)".utf8)
+        peripheralManager.respond(to: request, withResult: .success)
     }
 }

@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CoreBluetooth
 
 class ScanTableViewController: UITableViewController {
     
@@ -21,6 +20,12 @@ class ScanTableViewController: UITableViewController {
         
         bluetoothManager.delegate = self
         CentralData.shared.logs = []
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: NSNotification.Name(rawValue: "applicationDidBecomeActive"), object: nil)
+    }
+    
+    @objc func applicationDidBecomeActive() {
+        bluetoothManager.delegate = self
     }
     
     override func viewWillDisappear(_ animated: Bool) {

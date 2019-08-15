@@ -8,6 +8,11 @@
 
 import CoreBluetooth
 
+enum ConnectMode {
+    case subscribe
+    case readRequest
+}
+
 protocol BluetoothManagerDelegate: class {
     func bluetoothManager(_ bluetoothManager: BluetoothManager, log text: String)
     func bluetoothManagerDidUpdatePeripheral(_ bluetoothManager: BluetoothManager)
@@ -20,12 +25,29 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate
     var peripherals: [CBPeripheral] = []
     var selectedPeripheral: CBPeripheral!
     var subscribedCharacteristic: CBCharacteristic? = nil
+    var connectMode: ConnectMode! = .subscribe
     
     weak var delegate: BluetoothManagerDelegate?
+    var readBlock: DispatchWorkItem?
     
     required override init() {
         super.init()
         centralManager = CBCentralManager.init(delegate: self, queue: nil)
+    }
+    
+    func setupReadBlock() {
+        readBlock = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            
+            self.selectedPeripheral.readValue(for: self.subscribedCharacteristic!)
+            self.readValue()
+        }
+    }
+    
+    func readValue() {
+        let delay: Double = 2
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC),
+                                      execute: readBlock!)
     }
     
     func connectToPeripheral(at index: Int) {
@@ -36,6 +58,10 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate
     }
     
     func disconnect() {
+        // stop reading value
+        readBlock?.cancel()
+        readBlock = nil
+        
         if let _ = selectedPeripheral {
             if let _ = subscribedCharacteristic {
                 selectedPeripheral!.setNotifyValue(false, for: subscribedCharacteristic!)
@@ -131,11 +157,13 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate
                 if characteristic.uuid.isEqual(BeaconTableViewController.characteristicUUID) {
                     subscribedCharacteristic = characteristic
                     
-                    if characteristic.properties.contains(.notify) {
+                    if connectMode == .subscribe && characteristic.properties.contains(.notify) {
                         delegate?.bluetoothManager(self, log: "Start receiving notifications for changes of characteristic’s value")
                         peripheral.setNotifyValue(true, for: characteristic)
+                    } else if connectMode == .readRequest && characteristic.properties.contains(.read) {
+                        setupReadBlock()
+                        readValue()
                     }
-                    
                 }
             }
         }
