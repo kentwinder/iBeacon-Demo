@@ -117,7 +117,9 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
         if let name = peripheral.name, name != "" {
-            peripherals.append(peripheral)
+            if(!peripherals.contains(peripheral)) {
+                peripherals.append(peripheral)
+            }
             delegate?.bluetoothManagerDidUpdatePeripheral(self)
         }
     }
